@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 import os
 
+debug = False
+
+path = '/Users/georgeamccarthy/Documents/MPhysProject/AcousticData/CambridgeBay_201901/Batch 3/PAMGuide_Batch_TOL_Abs_64000ptHannWindow_50pcOlap'
+
 print(
         '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,12 +19,18 @@ print(
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ''')
 
-# if not batches:...
+csv_folder_path = path
 
-csv_folder_path = './test_data/uncombined'
+'''
+print('Enter parent CSV folder. CSVs in this folder will be read and combined to a new file.')
+csv_folder_paths.append(input('>>> '))
+
+print('Combine all child paths in directory?')
+'''
 
 csv_names = os.listdir(csv_folder_path)
 csv_names.sort()
+print(csv_names)
 
 def load_csvs(csv_names):
     csv_list = []
@@ -29,20 +39,23 @@ def load_csvs(csv_names):
     for csv_name in csv_names:
 
         if csv_name[-4:] != '.csv':
-            print(f'Skipping non-csv {csv_name}')
+            if debug:
+                print(f'Skipping non-csv {csv_name}')
             continue
 
         i += 1
 
-        print()
         csv = np.genfromtxt(f'{csv_folder_path}/{csv_name}', delimiter=',')
-        print(f'CSV {i}')
-        print('========================================')
-        print(f'Name: {csv_name}')
-        print(f'Size: {csv.size} rows, {csv[0].size} columns.')
-        print(f'Start time: {csv[1][0]}')
-        print(f'End time: {csv[-1][0]}')
-        print(f'Duration: {csv[-1][0] - csv[1][0]}')
+
+        if debug:
+            print()
+            print(f'CSV {i}')
+            print('========================================')
+            print(f'Name: {csv_name}')
+            print(f'Size: {csv.size} rows, {csv[0].size} columns.')
+            print(f'Start time: {csv[1][0]}')
+            print(f'End time: {csv[-1][0]}')
+            print(f'Duration: {csv[-1][0] - csv[1][0]}')
 
         if i != 0:
             csv = np.delete(csv, (0,), axis=0)
@@ -57,7 +70,15 @@ print(f'{len(csv_list)} CSVs loaded.')
 combined_csv = np.vstack(csv_list)
 print(f'Combined CSV numpy shape: {combined_csv.shape}')
 
-save_path = './test_data/combined/combined_csv.csv'
-print(f'CSV saved: {save_path}')
+if not os.path.exists('./combined'):
+    os.makedirs('./combined')
+
+print('Enter CSV name without file ending.')
+file_name = input('>>> ')
+if file_name == '':
+    file_name = 'combined_csv'
+save_path = f'./combined/{file_name}.csv'
+
+print(f'Saving csv: {save_path}')
 np.savetxt(save_path, combined_csv, delimiter=",")
 
