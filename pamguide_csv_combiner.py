@@ -3,9 +3,8 @@ import pandas as pd
 import numpy as np
 import os
 
-debug = False
 
-path = '/Users/georgeamccarthy/Documents/MPhysProject/AcousticData/CambridgeBay_201901/Batch 3/PAMGuide_Batch_TOL_Abs_64000ptHannWindow_50pcOlap'
+debug = False
 
 print(
         '''
@@ -19,33 +18,34 @@ print(
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ''')
 
-csv_folder_path = path
+print('Enter parent CSV folder. CSVs in this folder and subdirectories  will be read and combined to a new file.')
+csv_folder_path = input('>>> ')
+if csv_folder_path == '':
+    #csv_folder_path = '/Users/georgeamccarthy/Documents/MPhysProject/AcousticData/CambridgeBay_201901/'
+    csv_folder_path = '/Users/georgeamccarthy/Documents/MPhysProject/AcousticData/CambridgeBay_201903/'
 
-'''
-print('Enter parent CSV folder. CSVs in this folder will be read and combined to a new file.')
-csv_folder_paths.append(input('>>> '))
+csv_names = []
+for root, dirs, files in os.walk(csv_folder_path):
+    for file in files:
+        if file.endswith(".csv"):
+            csv_names.append(os.path.join(root, file))
 
-print('Combine all child paths in directory?')
-'''
-
-csv_names = os.listdir(csv_folder_path)
 csv_names.sort()
-print(csv_names)
 
 def load_csvs(csv_names):
     csv_list = []
 
-    i = -1
+    i = 0
     for csv_name in csv_names:
 
         if csv_name[-4:] != '.csv':
-            if debug:
-                print(f'Skipping non-csv {csv_name}')
+            #if debug:
+            print(f'Skipping non-csv {csv_name}')
             continue
 
         i += 1
 
-        csv = np.genfromtxt(f'{csv_folder_path}/{csv_name}', delimiter=',')
+        csv = np.genfromtxt(csv_name, delimiter=',')
 
         if debug:
             print()
@@ -57,7 +57,7 @@ def load_csvs(csv_names):
             print(f'End time: {csv[-1][0]}')
             print(f'Duration: {csv[-1][0] - csv[1][0]}')
 
-        if i != 0:
+        if i != 1:
             csv = np.delete(csv, (0,), axis=0)
         csv_list.append(csv)
 
